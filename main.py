@@ -29,7 +29,7 @@ def runImplementation(implementation, numOfTasks, primeNumber):
 def printUserInstructions():
     print("This program compares different multiprocessing implementations for computing prime numbers.")
     print("It includes concurrent implementations using threads and asynchronous tasks, as well as parallel implementations using multiprocessing.")
-    print("The list of implementaionts includes:")
+    print("The list of implementations includes:")
     print("1. Threaded implementation")
     print("2. Threaded sequential implementation")
     print("3. Thread pool implementation")
@@ -38,19 +38,35 @@ def printUserInstructions():
     print("6. Multiprocessing Pool implementation")
     print("7. Multiprocessing PoolExecutor implementation")
 
+def convertUserInputToInteger(userInput, defaultValue):
+    if not userInput:
+        print(f"Empty Input. Defaulting to {defaultValue}.")
+        return defaultValue
+    try:
+        return int(userInput)
+    except ValueError:
+        print(f"Invalid input. Defaulting to {defaultValue}.")
+        return defaultValue
+
+
+
 def collectUserInput():
     printUserInstructions()
-    numOfTasks = input("Please enter the number of tasks to run (default is 2): ")
-    firstImplementation = input("Please enter the number of the implementation you want to run (1-7): ")
-    secondImplementation = input("Please enter the number of the second implementation you want to run (1-7): ")
-    return int(numOfTasks), int(firstImplementation), int(secondImplementation)
+    primeInput = input("Please enter the prime number to compute (default is 109797044856282383): ")
+    primeToCompute = convertUserInputToInteger(primeInput, 109797044856282383)
+    tasksInput = input("Please enter the number of tasks to run (default is 2): ")
+    numOfTasks = convertUserInputToInteger(tasksInput, 2)
+    firstImplementationInput = input("Please enter the number of the implementation you want to run (1-7): ")
+    firstImplementation = convertUserInputToInteger(firstImplementationInput, 1)
+    secondImplementationInput = input("Please enter the number of the second implementation you want to run (1-7): ")
+    secondImplementation = convertUserInputToInteger(secondImplementationInput, 2)
+    return primeToCompute, numOfTasks, firstImplementation, secondImplementation
 
 def main():
-    printUserInstructions()
-    numOfTasks, firstImplementation, secondImplementation = collectUserInput()
-    while runImplementation(int(firstImplementation), numOfTasks, 109797044856282383) is False:
+    primeToCompute, numOfTasks, firstImplementation, secondImplementation = collectUserInput()
+    while runImplementation(firstImplementation, numOfTasks, primeToCompute) is False:
         firstImplementation = input("Please enter the number of the implementation you want to run (1-7): ")
-    while runImplementation(int(secondImplementation), numOfTasks, 109797044856282383) is False:
+    while runImplementation(secondImplementation, numOfTasks, primeToCompute) is False:
         secondImplementation = input("Please enter the number of the second implementation you want to run (1-7): ")
 
 if __name__ == "__main__":

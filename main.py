@@ -1,4 +1,4 @@
-def runImplementation(implementation, numOfTasks, primeNumber):
+def runImplementation(implementation, numOfTasks, primeNumber, poolSize):
     match implementation:
         case 1:
             from concurrentImplementations import threaded_compute_primes
@@ -11,7 +11,7 @@ def runImplementation(implementation, numOfTasks, primeNumber):
         case 3:
             from concurrentImplementations import thread_pool_compute_primes
 
-            thread_pool_compute_primes(2, numOfTasks, primeNumber)
+            thread_pool_compute_primes(poolSize, numOfTasks, primeNumber)
         case 4:
             from concurrentImplementations import asyncio_compute_primes
             import asyncio
@@ -24,13 +24,13 @@ def runImplementation(implementation, numOfTasks, primeNumber):
         case 6:
             from parallelImplementations import multiprocessing_pool_compute_primes
 
-            multiprocessing_pool_compute_primes(2, numOfTasks, primeNumber)
+            multiprocessing_pool_compute_primes(poolSize, numOfTasks, primeNumber)
         case 7:
             from parallelImplementations import (
                 multiprocessing_pool_executor_compute_primes,
             )
 
-            multiprocessing_pool_executor_compute_primes(2, numOfTasks, primeNumber)
+            multiprocessing_pool_executor_compute_primes(poolSize, numOfTasks, primeNumber)
         case _:
             return False
     return True
@@ -58,10 +58,26 @@ def convertUserInputToInteger(userInput, defaultValue):
         print(f"Empty Input. Defaulting to {defaultValue}.")
         return defaultValue
     try:
+        if int(userInput) < 0:
+            print(f"Negative input. Defaulting to {defaultValue}.")
+            return defaultValue
         return int(userInput)
     except ValueError:
         print(f"Invalid input. Defaulting to {defaultValue}.")
         return defaultValue
+
+
+def userInputPoolSize(firstImplementation, secondImplementation):
+    poolSize = [2, 2]
+    if firstImplementation in [3, 6, 7]:
+        poolSize[0] = input(
+            "Enter the pool size for the first implementation (default is 2): "
+        )
+    elif secondImplementation in [3, 6, 7]:
+        poolSize[1] = input(
+            "Enter the pool size for the second implementation (default is 2): "
+        )
+    return poolSize
 
 
 def collectUserInput():
@@ -80,18 +96,19 @@ def collectUserInput():
         "Please enter the number of the second implementation you want to run (1-7): "
     )
     secondImplementation = convertUserInputToInteger(secondImplementationInput, 2)
-    return primeToCompute, numOfTasks, firstImplementation, secondImplementation
+    firstPoolSize, secondPoolSize = userInputPoolSize(firstImplementation, secondImplementation)
+    return primeToCompute, numOfTasks, firstImplementation, secondImplementation, firstPoolSize, secondPoolSize
 
 
 def main():
-    primeToCompute, numOfTasks, firstImplementation, secondImplementation = (
+    primeToCompute, numOfTasks, firstImplementation, secondImplementation, firstPoolSize, secondPoolSize = (
         collectUserInput()
     )
-    while runImplementation(firstImplementation, numOfTasks, primeToCompute) is False:
+    while runImplementation(firstImplementation, numOfTasks, primeToCompute, firstPoolSize) is False:
         firstImplementation = input(
             "Please enter the number of the implementation you want to run (1-7): "
         )
-    while runImplementation(secondImplementation, numOfTasks, primeToCompute) is False:
+    while runImplementation(secondImplementation, numOfTasks, primeToCompute, secondPoolSize) is False:
         secondImplementation = input(
             "Please enter the number of the second implementation you want to run (1-7): "
         )

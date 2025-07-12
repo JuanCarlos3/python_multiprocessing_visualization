@@ -33,7 +33,7 @@ def test_compute_primes(number, expected):
         ("", 10, 10),
         ("abc", 10, 10),
         ("5", 10, 5),
-        ("-1", 10, -1),
+        ("-1", 10, 10),
     ],
 )
 def test_convert_user_input(input_value, default_value, expected):
@@ -57,7 +57,7 @@ def test_convert_user_input(input_value, default_value, expected):
     ],
 )
 def test_run_implementation(implementation_number, expected):
-    result = runImplementation(implementation_number, 1, 17)
+    result = runImplementation(implementation_number, 1, 17, 2)
     assert result == expected
 
 

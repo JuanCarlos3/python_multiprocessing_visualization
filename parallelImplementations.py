@@ -3,10 +3,10 @@ from computePrimeNumbers import compute_primes
 from concurrent.futures import ProcessPoolExecutor
 import time
 
-primeNumber = 109797044856282383
+# primeNumber = 109797044856282383
 
 
-def worker(name):
+def worker(name, primeNumber):
     thread_start_time = time.perf_counter()
     compute_primes(primeNumber)
     thread_end_time = time.perf_counter()
@@ -18,7 +18,13 @@ def multiprocessing_compute_primes(numOfTasks, primeNumber):
 
     total_start_time = time.perf_counter()
     for i in range(numOfTasks):
-        process = Process(target=worker, args=(f"Process-{i+1}",))
+        process = Process(
+            target=worker,
+            args=(
+                f"Process-{i+1}",
+                primeNumber,
+            ),
+        )
         processes.append(process)
 
     for process in processes:
@@ -38,7 +44,9 @@ def multiprocessing_pool_compute_primes(numOfProcesses, numOfTasks, primeNumber)
 
     total_start_time = time.perf_counter()
     with Pool(processes=numOfProcesses) as pool:
-        pool.map(worker, [f"Process-{i+1}" for i in range(numOfTasks)])
+        pool.starmap(
+            worker, [(f"Process-{i+1}", primeNumber) for i in range(numOfTasks)]
+        )
 
     total_end_time = time.perf_counter()
     print(
@@ -53,15 +61,13 @@ def multiprocessing_pool_executor_compute_primes(
 ):
     total_start_time = time.perf_counter()
     with ProcessPoolExecutor(max_workers=numOfProcesses) as executor:
-        futures = [executor.submit(worker, f"Process={i+1}") for i in range(numOfTasks)]
+        futures = [
+            executor.submit(worker, f"Process={i+1}", primeNumber)
+            for i in range(numOfTasks)
+        ]
     total_end_time = time.perf_counter()
     print(
         "Total multiprocessing PoolExecutor time: {:.2f} seconds".format(
             total_end_time - total_start_time
         )
     )
-
-
-if __name__ == "__main__":
-    # multiprocessing_compute_primes(2, primeNumber)
-    multiprocessing_pool_compute_primes(2, 2, primeNumber)

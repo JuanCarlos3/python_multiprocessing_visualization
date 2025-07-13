@@ -6,6 +6,11 @@ import time
 # primeNumber = 109797044856282383
 
 
+def total_execution_time(thread_end_time, thread_start_time):
+    print(f"Total execution time: {thread_end_time - thread_start_time:.2f} seconds")
+    return thread_end_time - thread_start_time
+
+
 def worker(name, primeNumber):
     thread_start_time = time.perf_counter()
     compute_primes(primeNumber)
@@ -33,11 +38,7 @@ def multiprocessing_compute_primes(numOfTasks, primeNumber):
         process.join()
 
     total_end_time = time.perf_counter()
-    print(
-        "Total multiprocessing time: {:.2f} seconds".format(
-            total_end_time - total_start_time
-        )
-    )
+    return total_execution_time(total_end_time, total_start_time)
 
 
 def multiprocessing_pool_compute_primes(numOfProcesses, numOfTasks, primeNumber):
@@ -49,11 +50,7 @@ def multiprocessing_pool_compute_primes(numOfProcesses, numOfTasks, primeNumber)
         )
 
     total_end_time = time.perf_counter()
-    print(
-        "Total multiprocessing Pool time: {:.2f} seconds".format(
-            total_end_time - total_start_time
-        )
-    )
+    return total_execution_time(total_end_time, total_start_time)
 
 
 def multiprocessing_pool_executor_compute_primes(
@@ -66,8 +63,4 @@ def multiprocessing_pool_executor_compute_primes(
             for i in range(numOfTasks)
         ]
     total_end_time = time.perf_counter()
-    print(
-        "Total multiprocessing PoolExecutor time: {:.2f} seconds".format(
-            total_end_time - total_start_time
-        )
-    )
+    return total_execution_time(total_end_time, total_start_time)

@@ -7,6 +7,11 @@ import asyncio
 # primeNumber = 109797044856282383
 
 
+def total_execution_time(thread_end_time, thread_start_time):
+    print(f"Total execution time: {thread_end_time - thread_start_time:.2f} seconds")
+    return thread_end_time - thread_start_time
+
+
 def worker(name, primeNumber):
     thread_start_time = time.perf_counter()
     compute_primes(primeNumber)
@@ -40,7 +45,7 @@ def threaded_compute_primes(numOfTasks, primeNumber):
         threads[i].join()
 
     total_end_time = time.perf_counter()
-    print("Total thread time: {:.2f} seconds".format(total_end_time - total_start_time))
+    return total_execution_time(total_end_time, total_start_time)
 
 
 # This function creates multiple threads to compute prime numbers sequentially.
@@ -65,7 +70,7 @@ def threaded_sequential_compute_primes(numOfTasks, primeNumber):
         threads[i].join()
 
     total_end_time = time.perf_counter()
-    print("Total thread time: {:.2f} seconds".format(total_end_time - total_start_time))
+    return total_execution_time(total_end_time, total_start_time)
 
 
 # This function uses a thread pool to compute prime numbers concurrently.
@@ -81,7 +86,7 @@ def thread_pool_compute_primes(numOfThreads, numOfTasks, primeNumber):
         ]  # Future object is an async computation that has not completed yet
 
     total_end_time = time.perf_counter()
-    print("Total thread time: {:.2f} seconds".format(total_end_time - total_start_time))
+    return total_execution_time(total_end_time, total_start_time)
 
 
 async def asyncio_worker(name, primeNumber):
@@ -106,7 +111,7 @@ async def asyncio_compute_primes(numOfTasks, primeNumber):
     await asyncio.gather(*tasks)
 
     total_end_time = time.perf_counter()
-    print("Total thread time: {:.2f} seconds".format(total_end_time - total_start_time))
+    return total_execution_time(total_end_time, total_start_time)
 
 
 # threaded_compute_primes(2, primeNumber)

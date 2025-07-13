@@ -44,39 +44,42 @@ def test_convert_user_input(input_value, default_value, expected):
 @pytest.mark.parametrize(
     "implementation_number,expected",
     [
-        (1, True),
-        (2, True),
-        (3, True),
-        (4, True),
-        (5, True),
-        (6, True),
-        (7, True),
-        (8, False),
-        (0, False),
-        (-1, False),
+        (1, lambda x: x > 0),
+        (2, lambda x: x > 0),
+        (3, lambda x: x > 0),
+        (4, lambda x: x > 0),
+        (5, lambda x: x > 0),
+        (6, lambda x: x > 0),
+        (7, lambda x: x > 0),
+        (8, lambda x: x == -2),
+        (9, lambda x: x == -1),
+        (0, lambda x: x == -1),
+        (-1, lambda x: x == -1),
     ],
 )
 def test_run_implementation(implementation_number, expected):
     result = runImplementation(implementation_number, 1, 17, 2)
-    assert result == expected
+    assert expected(result)
 
 
 # Test threaded implementation with different task counts
-@pytest.mark.parametrize("num_tasks", [1, 2, 4])
-def test_threaded_compute_primes(num_tasks):
-    threaded_compute_primes(num_tasks, 17)
+@pytest.mark.parametrize("num_tasks,primeNumber", [(1, 1), (2, 2), (2, 4)])
+def test_threaded_compute_primes(num_tasks, primeNumber):
+    threaded_compute_primes(num_tasks, primeNumber)
 
 
 # Test sequential threaded implementation
-@pytest.mark.parametrize("num_tasks", [1, 2, 4])
-def test_threaded_sequential_compute_primes(num_tasks):
-    threaded_sequential_compute_primes(num_tasks, 17)
+@pytest.mark.parametrize("num_tasks,primeNumber", [(1, 1), (2, 2), (2, 4)])
+def test_threaded_sequential_compute_primes(num_tasks, primeNumber):
+    threaded_sequential_compute_primes(num_tasks, primeNumber)
 
 
 # Test thread pool implementation
-@pytest.mark.parametrize("num_threads,num_tasks", [(1, 1), (2, 2), (2, 4)])
-def test_thread_pool_compute_primes(num_threads, num_tasks):
-    thread_pool_compute_primes(num_threads, num_tasks, 17)
+@pytest.mark.parametrize(
+    "num_threads,num_tasks,primeNumber", [(1, 1, 2), (2, 2, 3), (2, 4, 17)]
+)
+def test_thread_pool_compute_primes(num_threads, num_tasks, primeNumber):
+    thread_pool_compute_primes(num_threads, num_tasks, primeNumber)
 
 
 # Test asyncio implementation
@@ -87,21 +90,27 @@ async def test_asyncio_compute_primes(num_tasks):
 
 
 # Test multiprocessing implementation
-@pytest.mark.parametrize("num_tasks", [1, 2, 4])
-def test_multiprocessing_compute_primes(num_tasks):
-    multiprocessing_compute_primes(num_tasks, 17)
+@pytest.mark.parametrize("num_tasks, primeNumber", [(1, 1), (2, 2), (2, 4)])
+def test_multiprocessing_compute_primes(num_tasks, primeNumber):
+    multiprocessing_compute_primes(num_tasks, primeNumber)
 
 
 # Test multiprocessing pool implementation
-@pytest.mark.parametrize("num_processes,num_tasks", [(1, 1), (2, 2), (2, 4)])
-def test_multiprocessing_pool_compute_primes(num_processes, num_tasks):
-    multiprocessing_pool_compute_primes(num_processes, num_tasks, 17)
+@pytest.mark.parametrize(
+    "num_processes,num_tasks,primeNumber", [(1, 1, 2), (2, 2, 3), (2, 4, 17)]
+)
+def test_multiprocessing_pool_compute_primes(num_processes, num_tasks, primeNumber):
+    multiprocessing_pool_compute_primes(num_processes, num_tasks, primeNumber)
 
 
 # Test multiprocessing pool executor implementation
-@pytest.mark.parametrize("num_tasks", [1, 2, 4])
-def test_multiprocessing_pool_executor_compute_primes(num_tasks):
-    multiprocessing_pool_executor_compute_primes(2, num_tasks, 17)
+@pytest.mark.parametrize(
+    "num_processes,num_tasks,primeNumber", [(1, 1, 2), (2, 2, 3), (2, 4, 17)]
+)
+def test_multiprocessing_pool_executor_compute_primes(
+    num_processes, num_tasks, primeNumber
+):
+    multiprocessing_pool_executor_compute_primes(num_processes, num_tasks, primeNumber)
 
 
 if __name__ == "__main__":

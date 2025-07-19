@@ -14,15 +14,6 @@ import asyncio
 from enum import Enum
 
 
-invalidOption = -1
-quitProgramAndGenerateReport = -2
-implementationsRequiringPoolSize = [
-    3,
-    6,
-    7,
-]  # Implementations that require pool size input
-
-
 class implementationOptions(Enum):
     threaded = 1
     threaded_sequential = 2
@@ -32,6 +23,20 @@ class implementationOptions(Enum):
     multiprocessing_pool = 6
     multiprocessing_pool_executor = 7
     exit_program_and_generate_report = 8
+
+
+invalidOption = -1
+quitProgramAndGenerateReport = -2
+defaultPoolSize = 2
+defaultNumberOfTasks = 2
+defaultPrimeNumber = 109797044856282383
+defaultPrimeNumber = 834238027356431
+defaultImplementation = implementationOptions["threaded"].value
+implementationsRequiringPoolSize = [
+    3,
+    6,
+    7,
+]  # Implementations that require pool size input
 
 
 class ComputationResult:
@@ -78,11 +83,12 @@ class ComputationResults:
         times = []
 
         for result in self.results:
-            label = f"Impl:{result.implementation}\nTasks:{result.numOfTasks}\nPrime:{result.primeNumber}"
+            label = f"I:{implementationOptions(result.implementation).name} T:{result.numOfTasks} P:{result.primeNumber}"
             labels.append(label)
             times.append(result.executionTime)
 
         # Create bar graph
+        # print(labels)
         plt.clear_figure()
         plt.bar(labels, times)
         plt.title("Execution Time Comparison")
@@ -91,7 +97,7 @@ class ComputationResults:
         plt.show()
 
 
-def runImplementation(implementation, numOfTasks, primeNumber, poolSize):
+def runImplementationßß(implementation, numOfTasks, primeNumber, poolSize):
     match implementation:
         case 1:
 
@@ -152,26 +158,34 @@ def convertUserInputToInteger(userInput, defaultValue):
 
 
 def userInputPoolSize(firstImplementation):
-    poolSize = 2
+    poolSize = defaultPoolSize
     if firstImplementation in implementationsRequiringPoolSize:
-        poolSize = input(
-            "Enter the pool size for the first implementation (default is 2): "
-        )
+        poolSize = input("Enter the pool size for the implementation (default is 2): ")
     return int(poolSize)
 
 
 def collectUserInput():
     printUserInstructions()
+    implementationInput = input(
+        "Please enter the number of the implementation you want to run (1-7): "
+    )
+    implementation = convertUserInputToInteger(
+        implementationInput, defaultImplementation
+    )
+    if implementation == implementationOptions.exit_program_and_generate_report.value:
+        return (
+            defaultPrimeNumber,
+            defaultNumberOfTasks,
+            implementation,
+            defaultPoolSize,
+        )
+
     primeInput = input(
         "Please enter the prime number to compute (default is 109797044856282383): "
     )
-    primeToCompute = convertUserInputToInteger(primeInput, 109797044856282383)
+    primeToCompute = convertUserInputToInteger(primeInput, defaultPrimeNumber)
     tasksInput = input("Please enter the number of tasks to run (default is 2): ")
-    numOfTasks = convertUserInputToInteger(tasksInput, 2)
-    firstImplementationInput = input(
-        "Please enter the number of the implementation you want to run (1-7): "
-    )
-    implementation = convertUserInputToInteger(firstImplementationInput, 1)
+    numOfTasks = convertUserInputToInteger(tasksInput, defaultNumberOfTasks)
     poolSize = userInputPoolSize(implementation)
     return (
         primeToCompute,

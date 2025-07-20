@@ -1,13 +1,20 @@
 import asyncio
+from tqdm import tqdm
 from time import sleep
 
 
 def compute_primes(n):
     if n <= 1:
         return False
-    for i in range(2, int(n**0.5) + 1):
-        if n % i == 0:
-            return False
+
+    upper = int(n**0.5) + 1
+    with tqdm(total=upper) as pbar:
+        for i in range(2, upper):
+            pbar.update(1)
+            if n % i == 0:
+                pbar.close()
+                return False
+    pbar.close()
     return True
 
 

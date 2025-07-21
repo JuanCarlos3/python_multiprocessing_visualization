@@ -97,32 +97,41 @@ class ComputationResults:
         plt.show()
 
 
-def runImplementationßß(implementation, numOfTasks, primeNumber, poolSize):
+def runImplementation(
+    implementation, numOfTasks, primeNumber, poolSize, simulateIOBound
+):
     match implementation:
         case 1:
-
-            return threaded_compute_primes(numOfTasks, primeNumber)
+            return threaded_compute_primes(numOfTasks, primeNumber, simulateIOBound)
         case 2:
 
-            return threaded_sequential_compute_primes(numOfTasks, primeNumber)
+            return threaded_sequential_compute_primes(
+                numOfTasks, primeNumber, simulateIOBound
+            )
         case 3:
 
-            return thread_pool_compute_primes(poolSize, numOfTasks, primeNumber)
+            return thread_pool_compute_primes(
+                poolSize, numOfTasks, primeNumber, simulateIOBound
+            )
         case 4:
 
-            return asyncio.run(asyncio_compute_primes(numOfTasks, primeNumber))
+            return asyncio.run(
+                asyncio_compute_primes(numOfTasks, primeNumber, simulateIOBound)
+            )
         case 5:
 
-            return multiprocessing_compute_primes(numOfTasks, primeNumber)
+            return multiprocessing_compute_primes(
+                numOfTasks, primeNumber, simulateIOBound
+            )
         case 6:
 
             return multiprocessing_pool_compute_primes(
-                poolSize, numOfTasks, primeNumber
+                poolSize, numOfTasks, primeNumber, simulateIOBound
             )
         case 7:
 
             return multiprocessing_pool_executor_compute_primes(
-                poolSize, numOfTasks, primeNumber
+                poolSize, numOfTasks, primeNumber, simulateIOBound
             )
         case 8:
             print("Exiting program and generating report.")
@@ -158,10 +167,39 @@ def convertUserInputToInteger(userInput, defaultValue):
 
 
 def userInputPoolSize(firstImplementation):
+    if firstImplementation not in implementationsRequiringPoolSize:
+        return defaultPoolSize
+
+    userInput = input("Enter the pool size for the implementation (default is 2): ")
+    if not userInput:
+        print(f"Empty Input. Defaulting to {defaultPoolSize}.")
+        return defaultPoolSize
+    try:
+        if int(userInput) < 0:
+            print(f"Negative input. Defaulting to {defaultPoolSize}.")
+            return defaultPoolSize
+        return int(userInput)
+    except ValueError:
+        print(f"Invalid input. Defaulting to {defaultPoolSize}.")
+        return defaultPoolSize
+
     poolSize = defaultPoolSize
     if firstImplementation in implementationsRequiringPoolSize:
         poolSize = input("Enter the pool size for the implementation (default is 2): ")
     return int(poolSize)
+
+
+def userInputSimulateIOBound(prompt):
+    simulateIOBound = input(prompt)
+    if simulateIOBound.lower() in ["y", "yes"]:
+        print("Simulating I/O bound computation.")
+        return True
+    elif simulateIOBound.lower() in ["n", "no"]:
+        print("Not simulating I/O bound computation.")
+        return False
+    else:
+        print("Invalid input. Defaulting to no I/O simulation.")
+        return False
 
 
 def collectUserInput():
@@ -178,21 +216,22 @@ def collectUserInput():
             defaultNumberOfTasks,
             implementation,
             defaultPoolSize,
+            False,
         )
 
     primeInput = input(
         "Please enter the prime number to compute (default is 109797044856282383): "
     )
     primeToCompute = convertUserInputToInteger(primeInput, defaultPrimeNumber)
-    tasksInput = input("Please enter the number of tasks to run (default is 2): ")
+    tasksInput = input(
+        "Please enter the number of times you want to computer the primenumber: "
+    )
     numOfTasks = convertUserInputToInteger(tasksInput, defaultNumberOfTasks)
     poolSize = userInputPoolSize(implementation)
-    return (
-        primeToCompute,
-        numOfTasks,
-        implementation,
-        poolSize,
+    simulateIOBound = userInputSimulateIOBound(
+        "Do you want to simulate I/O bound computation? (y/n)"
     )
+    return (primeToCompute, numOfTasks, implementation, poolSize, simulateIOBound)
 
 
 def main():
@@ -204,9 +243,11 @@ def main():
     )
     print("You can run multiple implementations and see their execution times.")
     while not closeProgram:
-        primeToCompute, numOfTasks, implementation, poolSize = collectUserInput()
+        primeToCompute, numOfTasks, implementation, poolSize, simulateIOBound = (
+            collectUserInput()
+        )
         implementationResult = runImplementation(
-            implementation, numOfTasks, primeToCompute, poolSize
+            implementation, numOfTasks, primeToCompute, poolSize, simulateIOBound
         )
         if implementationResult == invalidOption:
             print("Invalid implementation number. Please try again.")

@@ -1,4 +1,8 @@
-from computePrimeNumbers import compute_primes
+from computePrimeNumbers import (
+    compute_primes,
+    compute_primes_ioIntensive,
+    compute_primes_ioIntensive_async,
+)
 from concurrent.futures import ThreadPoolExecutor
 import threading
 import time
@@ -12,9 +16,12 @@ def total_execution_time(thread_end_time, thread_start_time):
     return thread_end_time - thread_start_time
 
 
-def worker(name, primeNumber):
+def worker(name, primeNumber, simulateIOBound):
     thread_start_time = time.perf_counter()
-    compute_primes(primeNumber)
+    if simulateIOBound:
+        compute_primes_ioIntensive(primeNumber)
+    else:
+        compute_primes(primeNumber)
     thread_end_time = time.perf_counter()
     print(
         f"Thread {name} execution time: {thread_end_time - thread_start_time:.2f} seconds"
@@ -24,16 +31,13 @@ def worker(name, primeNumber):
 # This function creates multiple threads to compute prime numbers concurrently.
 # While the threads finish at simiilar times, due to the GIL, they do not run in parallel.
 # This makes the runtime similar to a single-threaded implementation.
-def threaded_compute_primes(numOfTasks, primeNumber):
+def threaded_compute_primes(numOfTasks, primeNumber, simulateIOBound):
     threads = []
 
     for i in range(numOfTasks):
         thread = threading.Thread(
             target=worker,
-            args=(
-                i,
-                primeNumber,
-            ),
+            args=(i, primeNumber, simulateIOBound),
         )
         threads.append(thread)
 
@@ -50,16 +54,13 @@ def threaded_compute_primes(numOfTasks, primeNumber):
 
 # This function creates multiple threads to compute prime numbers sequentially.
 # However, due to joining a thread before starting a new one, each thread starts and finishes before the next one starts.
-def threaded_sequential_compute_primes(numOfTasks, primeNumber):
+def threaded_sequential_compute_primes(numOfTasks, primeNumber, simulateIOBound):
     threads = []
 
     for i in range(numOfTasks):
         thread = threading.Thread(
             target=worker,
-            args=(
-                i,
-                primeNumber,
-            ),
+            args=(i, primeNumber, simulateIOBound),
         )
         threads.append(thread)
 
@@ -77,12 +78,13 @@ def threaded_sequential_compute_primes(numOfTasks, primeNumber):
 # It creates a fixed number of threads and submits tasks to the pool.
 # As there is a static number of threads, we save runtime as we do not have to create and join threads for each task.
 # This is useful when we may have multiple smaller tasks where creating the threads may take significant time.
-def thread_pool_compute_primes(numOfThreads, numOfTasks, primeNumber):
+def thread_pool_compute_primes(numOfThreads, numOfTasks, primeNumber, simulateIOBound):
 
     total_start_time = time.perf_counter()
     with ThreadPoolExecutor(max_workers=numOfThreads) as executor:
         futures = [
-            executor.submit(worker, _, primeNumber) for _ in range(numOfTasks)
+            executor.submit(worker, i, primeNumber, simulateIOBound)
+            for i in range(numOfTasks)
         ]  # Future object is an async computation that has not completed yet
 
     total_end_time = time.perf_counter()
@@ -98,14 +100,17 @@ async def asyncio_worker(name, primeNumber):
     )
 
 
-async def asyncio_computer_prime(threadNum, primeNumber):
-    await asyncio_worker(threadNum, primeNumber)
+async def asyncio_compute_prime(threadNum, primeNumber, simulateIOBound):
+    if simulateIOBound:
+        await compute_primes_ioIntensive_async(primeNumber)
+    else:
+        await asyncio_worker(threadNum, primeNumber)
 
 
-async def asyncio_compute_primes(numOfTasks, primeNumber):
+async def asyncio_compute_primes(numOfTasks, primeNumber, simulateIOBound):
     total_start_time = time.perf_counter()
     tasks = [
-        asyncio.create_task(asyncio_computer_prime(_, primeNumber))
+        asyncio.create_task(asyncio_compute_prime(_, primeNumber, simulateIOBound))
         for _ in range(numOfTasks)
     ]
     await asyncio.gather(*tasks)

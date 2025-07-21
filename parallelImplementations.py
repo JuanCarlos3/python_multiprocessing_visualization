@@ -1,5 +1,5 @@
 from multiprocessing import Process, Pool
-from computePrimeNumbers import compute_primes
+from computePrimeNumbers import compute_primes, compute_primes_ioIntensive
 from concurrent.futures import ProcessPoolExecutor
 import time
 
@@ -11,24 +11,24 @@ def total_execution_time(thread_end_time, thread_start_time):
     return thread_end_time - thread_start_time
 
 
-def worker(name, primeNumber):
+def worker(name, primeNumber, simulateIOBound):
     thread_start_time = time.perf_counter()
-    compute_primes(primeNumber)
+    if simulateIOBound:
+        compute_primes_ioIntensive(primeNumber)
+    else:
+        compute_primes(primeNumber)
     thread_end_time = time.perf_counter()
     print(f"{name} execution time: {thread_end_time - thread_start_time:.2f} seconds")
 
 
-def multiprocessing_compute_primes(numOfTasks, primeNumber):
+def multiprocessing_compute_primes(numOfTasks, primeNumber, simulateIOBound):
     processes = []
 
     total_start_time = time.perf_counter()
     for i in range(numOfTasks):
         process = Process(
             target=worker,
-            args=(
-                f"Process-{i+1}",
-                primeNumber,
-            ),
+            args=(f"Process-{i+1}", primeNumber, simulateIOBound),
         )
         processes.append(process)
 
@@ -41,25 +41,30 @@ def multiprocessing_compute_primes(numOfTasks, primeNumber):
     return total_execution_time(total_end_time, total_start_time)
 
 
-def multiprocessing_pool_compute_primes(numOfProcesses, numOfTasks, primeNumber):
+def multiprocessing_pool_compute_primes(
+    numOfProcesses, numOfTasks, primeNumber, simulateIOBound
+):
 
     total_start_time = time.perf_counter()
     with Pool(processes=numOfProcesses) as pool:
         pool.starmap(
-            worker, [(f"Process-{i+1}", primeNumber) for i in range(numOfTasks)]
+            worker,
+            [
+                (f"Process-{i+1}", primeNumber, simulateIOBound)
+                for i in range(numOfTasks)
+            ],
         )
-
     total_end_time = time.perf_counter()
     return total_execution_time(total_end_time, total_start_time)
 
 
 def multiprocessing_pool_executor_compute_primes(
-    numOfProcesses, numOfTasks, primeNumber
+    numOfProcesses, numOfTasks, primeNumber, simulateIOBound
 ):
     total_start_time = time.perf_counter()
     with ProcessPoolExecutor(max_workers=numOfProcesses) as executor:
         futures = [
-            executor.submit(worker, f"Process={i+1}", primeNumber)
+            executor.submit(worker, f"Process={i+1}", primeNumber, simulateIOBound)
             for i in range(numOfTasks)
         ]
     total_end_time = time.perf_counter()

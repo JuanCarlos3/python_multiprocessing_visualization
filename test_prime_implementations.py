@@ -58,59 +58,72 @@ def test_convert_user_input(input_value, default_value, expected):
     ],
 )
 def test_run_implementation(implementation_number, expected):
-    result = runImplementation(implementation_number, 1, 17, 2)
+    # Test with simulateIOBound=False
+    result = runImplementation(implementation_number, 1, 17, 2, False)
     assert expected(result)
 
 
 # Test threaded implementation with different task counts
-@pytest.mark.parametrize("num_tasks,primeNumber", [(1, 1), (2, 2), (2, 4)])
-def test_threaded_compute_primes(num_tasks, primeNumber):
-    threaded_compute_primes(num_tasks, primeNumber)
+@pytest.mark.parametrize("num_tasks", [1, 2])
+@pytest.mark.parametrize("simulateIOBound", [True, False])
+def test_threaded_compute_primes(num_tasks, simulateIOBound):
+    result = threaded_compute_primes(num_tasks, 17, simulateIOBound)
+    assert isinstance(result, float) and result >= 0
 
 
 # Test sequential threaded implementation
-@pytest.mark.parametrize("num_tasks,primeNumber", [(1, 1), (2, 2), (2, 4)])
-def test_threaded_sequential_compute_primes(num_tasks, primeNumber):
-    threaded_sequential_compute_primes(num_tasks, primeNumber)
+@pytest.mark.parametrize("num_tasks", [1, 2])
+@pytest.mark.parametrize("simulateIOBound", [True, False])
+def test_threaded_sequential_compute_primes(num_tasks, simulateIOBound):
+    result = threaded_sequential_compute_primes(num_tasks, 17, simulateIOBound)
+    assert isinstance(result, float) and result >= 0
 
 
 # Test thread pool implementation
-@pytest.mark.parametrize(
-    "num_threads,num_tasks,primeNumber", [(1, 1, 2), (2, 2, 3), (2, 4, 17)]
-)
-def test_thread_pool_compute_primes(num_threads, num_tasks, primeNumber):
-    thread_pool_compute_primes(num_threads, num_tasks, primeNumber)
+@pytest.mark.parametrize("num_threads,num_tasks", [(1, 1), (2, 2)])
+@pytest.mark.parametrize("simulateIOBound", [True, False])
+def test_thread_pool_compute_primes(num_threads, num_tasks, simulateIOBound):
+    result = thread_pool_compute_primes(num_threads, num_tasks, 17, simulateIOBound)
+    assert isinstance(result, float) and result >= 0
 
 
 # Test asyncio implementation
 @pytest.mark.asyncio
-@pytest.mark.parametrize("num_tasks", [1, 2, 4])
-async def test_asyncio_compute_primes(num_tasks):
-    await asyncio_compute_primes(num_tasks, 17)
+@pytest.mark.parametrize("num_tasks", [1, 2])
+@pytest.mark.parametrize("simulateIOBound", [True, False])
+async def test_asyncio_compute_primes(num_tasks, simulateIOBound):
+    result = await asyncio_compute_primes(num_tasks, 17, simulateIOBound)
+    assert isinstance(result, float) and result >= 0
 
 
 # Test multiprocessing implementation
-@pytest.mark.parametrize("num_tasks, primeNumber", [(1, 1), (2, 2), (2, 4)])
-def test_multiprocessing_compute_primes(num_tasks, primeNumber):
-    multiprocessing_compute_primes(num_tasks, primeNumber)
+@pytest.mark.parametrize("num_tasks", [1, 2])
+@pytest.mark.parametrize("simulateIOBound", [True, False])
+def test_multiprocessing_compute_primes(num_tasks, simulateIOBound):
+    result = multiprocessing_compute_primes(num_tasks, 17, simulateIOBound)
+    assert isinstance(result, float) and result >= 0
 
 
 # Test multiprocessing pool implementation
-@pytest.mark.parametrize(
-    "num_processes,num_tasks,primeNumber", [(1, 1, 2), (2, 2, 3), (2, 4, 17)]
-)
-def test_multiprocessing_pool_compute_primes(num_processes, num_tasks, primeNumber):
-    multiprocessing_pool_compute_primes(num_processes, num_tasks, primeNumber)
+@pytest.mark.parametrize("num_processes,num_tasks", [(1, 1), (2, 2)])
+@pytest.mark.parametrize("simulateIOBound", [True, False])
+def test_multiprocessing_pool_compute_primes(num_processes, num_tasks, simulateIOBound):
+    result = multiprocessing_pool_compute_primes(
+        num_processes, num_tasks, 17, simulateIOBound
+    )
+    assert isinstance(result, float) and result >= 0
 
 
 # Test multiprocessing pool executor implementation
-@pytest.mark.parametrize(
-    "num_processes,num_tasks,primeNumber", [(1, 1, 2), (2, 2, 3), (2, 4, 17)]
-)
+@pytest.mark.parametrize("num_processes,num_tasks", [(1, 1), (2, 2)])
+@pytest.mark.parametrize("simulateIOBound", [True, False])
 def test_multiprocessing_pool_executor_compute_primes(
-    num_processes, num_tasks, primeNumber
+    num_processes, num_tasks, simulateIOBound
 ):
-    multiprocessing_pool_executor_compute_primes(num_processes, num_tasks, primeNumber)
+    result = multiprocessing_pool_executor_compute_primes(
+        num_processes, num_tasks, 17, simulateIOBound
+    )
+    assert isinstance(result, float) and result >= 0
 
 
 if __name__ == "__main__":

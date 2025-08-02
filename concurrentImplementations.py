@@ -16,15 +16,15 @@ def total_execution_time(thread_end_time, thread_start_time):
     return thread_end_time - thread_start_time
 
 
-def worker(name, primeNumber, simulateIOBound):
+def worker(worker_id, primeNumber, simulateIOBound):
     thread_start_time = time.perf_counter()
     if simulateIOBound:
-        compute_primes_ioIntensive(primeNumber)
+        compute_primes_ioIntensive(primeNumber, worker_id)
     else:
-        compute_primes(primeNumber)
+        compute_primes(primeNumber, worker_id)
     thread_end_time = time.perf_counter()
     print(
-        f"Thread {name} execution time: {thread_end_time - thread_start_time:.2f} seconds"
+        f"Thread {worker_id} execution time: {thread_end_time - thread_start_time:.2f} seconds"
     )
 
 
@@ -91,27 +91,29 @@ def thread_pool_compute_primes(numOfThreads, numOfTasks, primeNumber, simulateIO
     return total_execution_time(total_end_time, total_start_time)
 
 
-async def asyncio_worker(name, primeNumber):
+async def asyncio_worker(worker_id, primeNumber):
+    loop = asyncio.get_running_loop()
     thread_start_time = time.perf_counter()
-    compute_primes(primeNumber)
+    await loop.run_in_executor(None, compute_primes, primeNumber, worker_id)
     thread_end_time = time.perf_counter()
     print(
-        f"Thread {name} execution time: {thread_end_time - thread_start_time:.2f} seconds"
+        f"Thread {worker_id} execution time: {thread_end_time - thread_start_time:.2f} seconds"
     )
 
 
-async def asyncio_compute_prime(threadNum, primeNumber, simulateIOBound):
+async def asyncio_compute_prime(worker_id, primeNumber, simulateIOBound):
     if simulateIOBound:
-        await compute_primes_ioIntensive_async(primeNumber)
+
+        await compute_primes_ioIntensive_async(primeNumber, worker_id)
     else:
-        await asyncio_worker(threadNum, primeNumber)
+        await asyncio_worker(worker_id, primeNumber)
 
 
 async def asyncio_compute_primes(numOfTasks, primeNumber, simulateIOBound):
     total_start_time = time.perf_counter()
     tasks = [
-        asyncio.create_task(asyncio_compute_prime(_, primeNumber, simulateIOBound))
-        for _ in range(numOfTasks)
+        asyncio.create_task(asyncio_compute_prime(i, primeNumber, simulateIOBound))
+        for i in range(numOfTasks)
     ]
     await asyncio.gather(*tasks)
 

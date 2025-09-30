@@ -2,6 +2,8 @@
 
 This repository contains a command-line tool that visualizes performance differences across various concurrency and parallelism approaches in Python. It compares concurrent vs. parallel execution and evaluates different libraries used in each approach.
 
+📖 [Read the detailed Medium article about this project](https://medium.com/@hwankim2k/comparing-approaches-for-processing-in-python-6926365ca8b9)
+
 ---
 
 ## 💡 Supported Implementations
